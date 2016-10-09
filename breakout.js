@@ -5,8 +5,8 @@ var gameIntialize = function () {
     "use strict";
     var canvas = document.getElementById("canvas-box"),
         ctx = canvas.getContext("2d"),
-        x = canvas.width / 2,
-        y = canvas.height / 2,
+        ballX = canvas.width / 2,
+        ballY = canvas.height / 2,
         dx = 2,
         dy = -2,
         ballRadius = 10,
@@ -17,7 +17,7 @@ var gameIntialize = function () {
         rightArrowPressed = false,
         leftArrowPressed = false,
         spaceKeyPressed = false,
-        brickRowCount = 4,
+        brickRowCount = 5,
         brickColumnCount = 7,
         brickWidth = 50,
         brickHeight = 15,
@@ -31,7 +31,11 @@ var gameIntialize = function () {
     for(var ii = 0; ii < brickRowCount; ii++) {
         bricks[ii] = [];
         for(var jj = 0; jj < brickColumnCount ; jj++) {
-            bricks[ii][jj] = { x: 0, y: 0 };
+            bricks[ii][jj] = {
+                x: 0,
+                y: 0,
+                hit: false,
+            };
         }
     }
 
@@ -56,7 +60,7 @@ var gameIntialize = function () {
 
     function drawBall() {
         ctx.beginPath();
-        ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
+        ctx.arc(ballX, ballY, ballRadius, 0, Math.PI * 2);
         ctx.fillStyle = "#000000";
         ctx.fill();
         ctx.closePath();
@@ -74,14 +78,31 @@ var gameIntialize = function () {
         for(var ii = 0; ii < brickRowCount; ii++) {
             var brickY = (ii *(brickHeight + brickPadding)) + brickOffsetTop;
             for(var jj = 0; jj < brickColumnCount  ; jj++) {
-                bricks[ii][jj].y = brickY;
-                var brickX = (jj * (brickWidth + brickPadding)) + brickOffsetLeft;
-                bricks[ii][jj].x = brickX;
-                ctx.beginPath();
-                ctx.rect(brickX, brickY, brickWidth, brickHeight);
-                ctx.fillStyle = brickColor(ii);
-                ctx.fill();
-                ctx.closePath();
+                var brick = bricks[ii][jj];
+                if(!brick.hit){
+                    brick.y = brickY;
+                    var brickX = (jj * (brickWidth + brickPadding)) + brickOffsetLeft;
+                    brick.x = brickX;
+                    ctx.beginPath();
+                    ctx.rect(brickX, brickY, brickWidth, brickHeight);
+                    ctx.fillStyle = brickColor(ii);
+                    ctx.fill();
+                    ctx.closePath();
+                }
+            }
+        }
+    }
+
+    function collisionDetection() {
+        for(var ii = 0; ii < brickRowCount; ii++) {
+            for(var jj = 0; jj < brickColumnCount  ; jj++) {
+                var brick = bricks[ii][jj];
+                if(!brick.hit) {
+                    if(ballX > brick.x && ballX < brick.x + brickWidth && ballY > brick.y && ballY < brick.y + brickHeight) {
+                        dy = -dy;
+                        brick.hit = true;
+                    }
+                }
             }
         }
     }
@@ -91,15 +112,16 @@ var gameIntialize = function () {
         drawBricks();
         drawBall();
         drawPaddle();
-        if(x + dx > canvas.width-ballRadius || x + dx < ballRadius) {
+        collisionDetection();
+        if(ballX + dx > canvas.width-ballRadius || ballX + dx < ballRadius) {
             dx = -dx;
         }
-        if(y + dy < ballRadius) {
-            dy = -(dy + 0.5);
+        if(ballY + dy < ballRadius) {
+            dy = -dy;
         }
-        else if(y + dy >= paddleY) {
-            if(x > paddleX && x < paddleX + paddleWidth) {
-                dy = -(dy + 1);
+        else if(ballY + dy >= paddleY) {
+            if(ballX > paddleX && ballX < paddleX + paddleWidth ) {
+                dy = -dy;
             }
             else {
                 gameOver();
@@ -113,8 +135,8 @@ var gameIntialize = function () {
             else if(leftArrowPressed && paddleX > 0) {
                 paddleX -= 7;
             }
-            x += dx;
-            y += dy;
+            ballX += dx;
+            ballY += dy;
         }
 
     }
@@ -138,7 +160,7 @@ var brickColor = function(rowNumber){
             color = "green";
             break;
         default:
-            color = "00FFFF";
+            color = "cyan";
     }
     return color;
 };
