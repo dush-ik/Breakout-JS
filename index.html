@@ -2,6 +2,7 @@
 <html>
     <head>
         <title>BreakOut</title>
+        <script src="breakout.js"></script>
         <style>
                 canvas { background: #eee; display: block; margin: 0 auto; border:1px solid aqua;}
                 #canvas-box {
@@ -12,6 +13,10 @@
     </head>
     <body>
         <canvas id="canvas-box" width="480" height="550"></canvas>
-        <script src="breakout.js" onload="gameIntialize()" async></script>
+        <script>
+            (function() {
+                gameIntialize();
+            })();
+        </script>
     </body>
 </html>
