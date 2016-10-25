@@ -120,10 +120,10 @@ var gameIntialize = function () {
             dy = -dy;
         }
         else if(ballY + dy >= paddleY) {
-            if(ballX > paddleX && ballX < paddleX + paddleWidth ) {
+            if(ballX > paddleX - ballRadius && ballX < paddleX + paddleWidth + ballRadius) {
                 dy = -dy;
             }
-            else {
+            else if(ballY + dy - ballRadius >= paddleY){
                 gameOver();
             }
         }
